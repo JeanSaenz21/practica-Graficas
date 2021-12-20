@@ -48,7 +48,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 <script>
-    function buildGraph(canvas_id, type,background,data1,data2) {
+    function buildGraph(canvas_id, type,data1,data2,background) {
         var ctx = document.getElementById(canvas_id).getContext('2d');
         var graph = new Chart(ctx, {
             type: type,
@@ -57,12 +57,12 @@
                 datasets: [{
                     label: ['Orders'],
                     data: data1,
-                    backgroundColor: background,
+                    backgroundColor: [background],
                 },{
                     type: 'line',
                     label: 'Goal',
                     data: data2,
-                    backgroundColor: ["green"],
+                    backgroundColor: ["blue"],
                 }],
             },
             options: {
@@ -78,7 +78,7 @@
     var data1 = []
     var data2 = []
      function createGraphs() {
-        graph_shippedCompleted = buildGraph("shipped_completed", "bar",data1,data2);
+        graph_shippedCompleted = buildGraph("shipped_completed", "bar",data1,data2,"orange");
      }
 
     var graph_shippedCompleted = null;
@@ -94,12 +94,16 @@
         data: {
             searching: true,
             data: [],
-
+            goalTurn: 0,
         },
         methods: {
             loadData: function () {
-                this.insertDataIntoGraph(graph_shippedCompleted,500,"OTS",3200);
-                if data1 == data2:
+                this.insertDataIntoGraph(graph_shippedCompleted,3400,"OTS",this.goalTurn);
+                if (data1[0] >= data2[0]){
+                    graph_shippedCompleted.destroy();
+                    graph_shippedCompleted = buildGraph("shipped_completed", "bar",data1,data2,"green");
+                    this.insertDataIntoGraph(graph_shippedCompleted,3200,"OTS",this.goalTurn);
+                }
             },
             insertDataIntoGraph: function (graph, field,label, goal) {
                 graph.data.labels.push(label);
