@@ -77,12 +77,8 @@ WSGI_APPLICATION = 'practica_graficas.wsgi.application'
 
 DATABASES = {
     'default': {
-        "ENGINE": "django.db.backends.mysql",
-        'NAME': 'bts',
-        'USER': 'apps',
-        'PASSWORD': '#WorkTogether12!',
-        'HOST': 'dtv-docker-mss01.us.signintra.com',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

@@ -19,51 +19,15 @@
     <div class="main-container" id="vue-container">
         <div class="main-content container">
             {# <div v-if="searching" class="loading">Loading</div> #}
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="panel panel-danger">
                     <div class="panel-heading clearfix">
-                        <div class="panel-title"><h1>Pieces Shipped </h1></div>
+                        <div class="panel-title"><h1>Shipped Completed </h1></div>
                         <ul class="panel-tool-options">
                         </ul>
                     </div>
                     <div class="panel-body">
-                        <canvas id="pieces" width="600" height="330"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading clearfix">
-                        <div class="panel-title"><h1>Pieces Shipped </h1></div>
-                        <ul class="panel-tool-options">
-                        </ul>
-                    </div>
-                    <div class="panel-body">
-                        <canvas id="pieces"  width="500" height="330"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading clearfix">
-                        <div class="panel-title"><h1>Pieces Shipped </h1></div>
-                        <ul class="panel-tool-options">
-                        </ul>
-                    </div>
-                    <div class="panel-body">
-                        <canvas id="pieces" width="500" height="330"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading clearfix">
-                        <div class="panel-title"><h1>Pieces Shipped </h1></div>
-                        <ul class="panel-tool-options">
-                        </ul>
-                    </div>
-                    <div class="panel-body">
-                        <canvas id="pieces" width="500" height="330"></canvas>
+                        <canvas id="shipped_completed" width="600" height="330"></canvas>
                     </div>
                 </div>
             </div>
@@ -83,4 +47,68 @@
 <script src="{% static 'js/moment.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
+<script>
+    function buildGraph(canvas_id, type,background,data1,data2) {
+        var ctx = document.getElementById(canvas_id).getContext('2d');
+        var graph = new Chart(ctx, {
+            type: type,
+            data: {
+                labels: [],
+                datasets: [{
+                    label: ['Orders'],
+                    data: data1,
+                    backgroundColor: background,
+                },{
+                    type: 'line',
+                    label: 'Goal',
+                    data: data2,
+                    backgroundColor: ["green"],
+                }],
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                    }
+                }
+            }
+        });
+        return graph;
+    }
+    var data1 = []
+    var data2 = []
+     function createGraphs() {
+        graph_shippedCompleted = buildGraph("shipped_completed", "bar",data1,data2);
+     }
+
+    var graph_shippedCompleted = null;
+    $(document).ready(function () {
+        createGraphs();
+        v.loadData();
+
+    });
+    Vue.http.headers.common['X-CSRFTOKEN'] = Cookies.get('csrftoken');
+    v = new Vue({
+        delimiters: ['[[', ']]'],
+        el: '#vue-container',
+        data: {
+            searching: true,
+            data: [],
+
+        },
+        methods: {
+            loadData: function () {
+                this.insertDataIntoGraph(graph_shippedCompleted,500,"OTS",3200);
+                if data1 == data2:
+            },
+            insertDataIntoGraph: function (graph, field,label, goal) {
+                graph.data.labels.push(label);
+                data1.push(field);
+                data2.push(goal);
+                graph.update();
+            }
+
+        }
+    });
+</script>
 </html>
