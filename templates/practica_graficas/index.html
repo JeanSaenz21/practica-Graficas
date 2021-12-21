@@ -18,7 +18,12 @@
 <div class="page-container">
     <div class="main-container" id="vue-container">
         <div class="main-content container">
-            {# <div v-if="searching" class="loading">Loading</div> #}
+            <div v-if="searching" class="loading">Loading</div>
+            <div class="form-group">
+                <form class="form-action">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#selectTurn">Set Goal Turn</button>
+                </form>
+            </div>
             <div class="col-md-12">
                 <div class="panel panel-danger">
                     <div class="panel-heading clearfix">
@@ -28,6 +33,39 @@
                     </div>
                     <div class="panel-body">
                         <canvas id="shipped_completed" width="600" height="330"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="selectTurn" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="modal-title" id="exampleModalLongTitle">Change the goal turn</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="">
+                                <div class="form-group">
+                                    <div>
+                                        <label for="goalTurn" class="col-form-label">Select the turn:</label>
+                                        <select class="form-control" aria-label="Default select example">
+                                        <option value="first_turn">First Turn</option>
+                                        <option value="second_turn">Second Turn</option>
+                                    </select>
+                                    </div>
+                                    <div style="margin-top: 20px">
+                                        <label for="goalTurn" class="col-form-label">Introduce the goal:</label>
+                                        <input type="text" class="form-control" label="Introduce the goal">
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#changeGoal">Next</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -48,7 +86,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 <script>
-    function buildGraph(canvas_id, type,data1,data2,background) {
+    function buildGraph(canvas_id, type) {
         var ctx = document.getElementById(canvas_id).getContext('2d');
         var graph = new Chart(ctx, {
             type: type,
@@ -56,12 +94,12 @@
                 labels: [],
                 datasets: [{
                     label: ['Orders'],
-                    data: data1,
-                    backgroundColor: [background],
+                    data: [],
+                    backgroundColor: [],
                 },{
                     type: 'line',
                     label: 'Goal',
-                    data: data2,
+                    data: [],
                     backgroundColor: ["blue"],
                 }],
             },
@@ -69,16 +107,16 @@
                 scales: {
                     y: {
                         beginAtZero: true,
+                        max:5000,
                     }
                 }
             }
         });
         return graph;
     }
-    var data1 = []
-    var data2 = []
+
      function createGraphs() {
-        graph_shippedCompleted = buildGraph("shipped_completed", "bar",data1,data2,"orange");
+        graph_shippedCompleted = buildGraph("shipped_completed", "bar");
      }
 
     var graph_shippedCompleted = null;
@@ -98,20 +136,31 @@
         },
         methods: {
             loadData: function () {
-                this.insertDataIntoGraph(graph_shippedCompleted,3400,"OTS",this.goalTurn);
-                if (data1[0] >= data2[0]){
-                    graph_shippedCompleted.destroy();
-                    graph_shippedCompleted = buildGraph("shipped_completed", "bar",data1,data2,"green");
-                    this.insertDataIntoGraph(graph_shippedCompleted,3200,"OTS",this.goalTurn);
+                this.searching = false;
+                this.insertDataIntoGraph(graph_shippedCompleted,4000,"First Turn",this.goalTurn, "orange");
+                this.insertDataIntoGraph(graph_shippedCompleted,3100,"Second Turn",this.goalTurn, "orange");
+                graph_shippedCompleted.update();
+                if (graph_shippedCompleted.data['datasets'][0].data[0] >= graph_shippedCompleted.data['datasets'][1].data[0]){
+                    graph_shippedCompleted.data['datasets'][0].backgroundColor[0]="green";
+                    graph_shippedCompleted.update();
+                }
+                if (graph_shippedCompleted.data['datasets'][0].data[1] >= graph_shippedCompleted.data['datasets'][1].data[1]){
+                    graph_shippedCompleted.data['datasets'][0].backgroundColor[1]="green";
+                    graph_shippedCompleted.update();
                 }
             },
-            insertDataIntoGraph: function (graph, field,label, goal) {
+            insertDataIntoGraph: function (graph, field,label, goal,background) {
                 graph.data.labels.push(label);
-                data1.push(field);
-                data2.push(goal);
+                graph.data['datasets'][0].data.push(field);
+                graph.data['datasets'][1].data.push(goal);
+                graph.data['datasets'][0].backgroundColor.push(background);
                 graph.update();
-            }
-
+            },
+            setGoalTurn: function () {
+                graph_shippedCompleted.destroy();
+                createGraphs();
+                this.loadData();
+            },
         }
     });
 </script>
